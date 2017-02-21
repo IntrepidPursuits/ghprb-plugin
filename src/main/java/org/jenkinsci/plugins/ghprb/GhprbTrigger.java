@@ -26,6 +26,7 @@ import jenkins.model.Jenkins;
 import jenkins.model.ParameterizedJobMixIn;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbBuildStep;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbCommitStatus;
 import org.jenkinsci.plugins.ghprb.extensions.GhprbExtension;
@@ -66,7 +67,6 @@ import javax.servlet.ServletException;
  */
 public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
 
-    @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
     private static final Logger logger = Logger.getLogger(GhprbTrigger.class.getName());
     private final String adminlist;
@@ -651,6 +651,7 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
     }
 
 
+    @Extension @Symbol("githubPullRequest")
     public static final class DescriptorImpl extends TriggerDescriptor {
         // GitHub username may only contain alphanumeric characters or dashes and cannot begin with a dash
         private static final Pattern adminlistPattern = Pattern.compile("((\\p{Alnum}[\\p{Alnum}-]*)|\\s)*");
