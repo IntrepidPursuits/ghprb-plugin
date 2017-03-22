@@ -163,7 +163,7 @@ public class GhprbPullRequest {
         tryBuild();
     }
 
-    private void checkBlackListLabels() {
+    private synchronized void checkBlackListLabels() {
         Set<String> labelsToIgnore = helper.getBlackListLabels();
         if (labelsToIgnore != null && !labelsToIgnore.isEmpty()) {
             try {
