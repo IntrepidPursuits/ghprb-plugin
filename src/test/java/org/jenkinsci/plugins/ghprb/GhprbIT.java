@@ -47,15 +47,14 @@ public class GhprbIT extends GhprbITBaseTestCase {
     @Before
     public void setUp() throws Exception {// GIVEN
         req = Mockito.mock(RequestImpl.class);
+//        req = new RequestImpl(null, null, null, null);
 
         given(req.bindJSON(any(Class.class), any(JSONObject.class))).willCallRealMethod();
         given(req.bindJSON(any(Class.class), any(Class.class), any(JSONObject.class))).willCallRealMethod();
+        given(req.setBindInterceptor(any(BindInterceptor.class))).willCallRealMethod();
         given(req.setBindInterceptpr(any(BindInterceptor.class))).willCallRealMethod();
         given(req.setBindListener(any(BindInterceptor.class))).willCallRealMethod();
-        given(req.getBindInterceptor()).willReturn(BindInterceptor.NOOP);
 
-        req.setBindListener(BindInterceptor.NOOP);
-        req.setBindInterceptpr(BindInterceptor.NOOP);
         req.setBindInterceptor(BindInterceptor.NOOP);
         project = jenkinsRule.createFreeStyleProject("PRJ");
         super.beforeTest(null, null, project);

@@ -84,7 +84,12 @@ public class GhprbPullRequestMerge extends Recorder implements SimpleBuildStep {
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath filePath, @Nonnull Launcher launcher, @Nonnull TaskListener taskListener) throws InterruptedException, IOException {
         listener = taskListener;
         Job<?, ?> project = run.getParent();
-        if (run.getResult().isWorseThan(Result.SUCCESS)) {
+        Result result = run.getResult();
+        if (result == null) {
+            return;
+        }
+
+        if (result.isWorseThan(Result.SUCCESS)) {
             taskListener.getLogger().println("Build did not succeed, merge will not be run");
             return;
         }

@@ -181,7 +181,7 @@ public class GhprbPullRequest {
         }
     }
 
-    private void checkWhiteListLabels() {
+    private synchronized void checkWhiteListLabels() {
         Set<String> labelsMustContain = helper.getWhiteListLabels();
         if (labelsMustContain != null && !labelsMustContain.isEmpty()) {
             boolean containsWhiteListLabel = false;
@@ -245,7 +245,7 @@ public class GhprbPullRequest {
     //         each comment.
     //      3. Without webhooks - In this case, we will always check comments and hashes until
     //         the last update time.
-    private void updatePR(GHPullRequest ghpr, GHIssueComment comment, boolean isWebhook) {
+    private synchronized void updatePR(GHPullRequest ghpr, GHIssueComment comment, boolean isWebhook) {
         // Get the updated time
         try {
             Date lastUpdateTime = updated;

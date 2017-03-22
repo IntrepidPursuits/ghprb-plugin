@@ -43,9 +43,8 @@ import static org.mockito.Mockito.spy;
 
 public class GhprbTestUtil {
 
-    public static final int INITIAL_RATE_LIMIT = 5000;
-    public static final String GHPRB_PLUGIN_NAME = "ghprb";
-    public static final String PAYLOAD = "{" +
+    static final int INITIAL_RATE_LIMIT = 5000;
+    static final String PAYLOAD = "{" +
             "  \"action\": \"created\"," +
             "  \"issue\": {" +
             "    \"url\": \"https://api.github.com/repos/user/dropwizard/issues/1\"," +
@@ -265,8 +264,7 @@ public class GhprbTestUtil {
     private static final String apiUrl = "https://api.github.com";
     
     private static String setUpCredentials() throws Exception {
-        String credentialsId = Ghprb.createCredentials(apiUrl, "accessToken");
-        return credentialsId;
+        return Ghprb.createCredentials(apiUrl, "accessToken");
     }
     
     private static String credentialsId;
@@ -344,7 +342,6 @@ public class GhprbTestUtil {
         
      }
     
-    @SuppressWarnings("unchecked")
     private static void setupReq() throws Exception{
         MetaClass meta = Mockito.mock(MetaClass.class);
         SingleLinkedList<MethodRef> list = SingleLinkedList.empty();

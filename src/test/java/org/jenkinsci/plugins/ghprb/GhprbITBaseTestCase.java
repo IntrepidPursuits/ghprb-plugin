@@ -2,7 +2,6 @@ package org.jenkinsci.plugins.ghprb;
 
 import com.coravy.hudson.plugins.github.GithubProjectProperty;
 import hudson.model.AbstractProject;
-import hudson.model.Job;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.git.GitSCM;
@@ -23,22 +22,22 @@ import static org.mockito.Matchers.*;
 public abstract class GhprbITBaseTestCase {
 
     @Mock
+    GHUser ghUser;
+    @Mock
     protected GHCommitPointer commitPointer;
     @Mock
     protected GHPullRequest ghPullRequest;
     @Mock
-    protected GhprbGitHub ghprbGitHub;
+    private GhprbGitHub ghprbGitHub;
     @Mock
     protected GHRepository ghRepository;
     @Mock
-    protected GHUser ghUser;
+    private Ghprb helper;
     @Mock
-    protected Ghprb helper;
-    @Mock
-    protected GhprbPullRequest ghprbPullRequest;
-    
-    protected GhprbBuilds builds;
-    
+    private GhprbPullRequest ghprbPullRequest;
+
+    private GhprbBuilds builds;
+
     protected GhprbTrigger trigger;
 
     // Stubs

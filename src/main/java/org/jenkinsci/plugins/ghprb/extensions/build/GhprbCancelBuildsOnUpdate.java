@@ -1,11 +1,7 @@
 package org.jenkinsci.plugins.ghprb.extensions.build;
 
 import hudson.Extension;
-import hudson.model.Cause;
-import hudson.model.Job;
-import hudson.model.Queue;
-import hudson.model.Result;
-import hudson.model.Run;
+import hudson.model.*;
 import hudson.util.RunList;
 import jenkins.model.Jenkins;
 
@@ -57,7 +53,7 @@ public class GhprbCancelBuildsOnUpdate extends GhprbExtension implements GhprbBu
                 }
             }
 
-            if (qcause.getPullID() == prId && qcause != null) {
+            if (qcause != null && qcause.getPullID() == prId) {
                 try {
                     logger.log(Level.FINER, "Cancelling queued build of " + project.getName() + " for PR # " + qcause.getPullID() + ", checking for queued items to cancel.");
                     queue.cancel(queueItem);
@@ -83,7 +79,11 @@ public class GhprbCancelBuildsOnUpdate extends GhprbExtension implements GhprbBu
                 try {
                     logger.log(Level.FINER, "Cancelling running build #" + run.getNumber() + " of " + project.getName() + " for PR # " + cause.getPullID());
                     run.addAction(this);
-                    run.getExecutor().interrupt(Result.ABORTED);
+
+                    Executor executor = run.getExecutor();
+                    if (executor != null) {
+                        executor.interrupt(Result.ABORTED);
+                    }
                 } catch (Exception e) {
                     logger.log(Level.SEVERE, "Error while trying to interrupt build!", e);
                 }

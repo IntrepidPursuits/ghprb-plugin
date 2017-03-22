@@ -173,10 +173,15 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
     @SuppressWarnings("deprecation")
     private void initState() throws IOException {
 
+        if (super.job == null) {
+            throw new IllegalStateException("A job is required");
+        }
+
         final GithubProjectProperty ghpp = super.job.getProperty(GithubProjectProperty.class);
-        if (ghpp == null || ghpp.getProjectUrl() == null) {
+        if (ghpp == null) {
             throw new IllegalStateException("A GitHub project url is required.");
         }
+
         String baseUrl = ghpp.getProjectUrl().baseUrl();
         Matcher m = Ghprb.githubUserRepoPattern.matcher(baseUrl);
         if (!m.matches()) {
@@ -276,7 +281,15 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
             return;
         }
 
-        logger.log(Level.FINE, "Running trigger for {0}", super.job.getFullName());
+        Job job = super.job;
+        if (job == null) {
+            return;
+        }
+
+        String jobName = job.getFullName();
+        if (jobName != null) {
+            logger.log(Level.FINE, "Running trigger for {0}", jobName);
+        }
         
         this.repository.check();
     }
@@ -316,13 +329,19 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
 
         try {
             triggerAuthor = getString(cause.getTriggerSender().getName(), "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            logger.log(Level.FINE, String.format("Couldn't extract author string: %s", e));
+        }
         try {
             triggerAuthorEmail = getString(cause.getTriggerSender().getEmail(), "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            logger.log(Level.FINE, String.format("Couldn't extract author email string: %s", e));
+        }
         try {
             triggerAuthorLogin = getString(cause.getTriggerSender().getLogin(), "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            logger.log(Level.FINE, String.format("Couldn't extract author login string: %s", e));
+        }
 
         setCommitAuthor(cause, values);
         values.add(new StringParameterValue("ghprbAuthorRepoGitUrl", getString(cause.getAuthorRepoGitUrl(), "")));
@@ -365,7 +384,12 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
             }
         };
 
-        return scheduledJob.scheduleBuild2(Jenkins.getInstance().getQuietPeriod(),new CauseAction(cause),new GhprbParametersAction(values), buildData);
+        Jenkins jenkins = Jenkins.getInstance();
+        if (jenkins != null) {
+            return scheduledJob.scheduleBuild2(jenkins.getQuietPeriod(),new CauseAction(cause),new GhprbParametersAction(values), buildData);
+        }
+
+        return null;
     }
 
     private void setCommitAuthor(GhprbCause cause, ArrayList<ParameterValue> values) {
@@ -386,7 +410,12 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
     
     private ArrayList<ParameterValue> getDefaultParameters() {
         ArrayList<ParameterValue> values = new ArrayList<ParameterValue>();
-        ParametersDefinitionProperty pdp = this.job.getProperty(ParametersDefinitionProperty.class);
+        ParametersDefinitionProperty pdp = null;
+
+        if (this.job != null) {
+            pdp = this.job.getProperty(ParametersDefinitionProperty.class);
+        }
+
         if (pdp != null) {
             for (ParameterDefinition pd : pdp.getParameterDefinitions()) {
                 values.add(pd.getDefaultParameterValue());
@@ -426,7 +455,9 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
     public void addWhitelist(String author) {
         whitelist = whitelist + " " + author;
         try {
-            this.job.save();
+            if (this.job != null) {
+                this.job.save();
+            }
         } catch (IOException ex) {
             logger.log(Level.SEVERE, "Failed to save new whitelist", ex);
         }
@@ -806,7 +837,7 @@ public class GhprbTrigger extends GhprbTriggerBackwardsCompatible {
             for (GHCommitState nextResult : results) {
                 String text = StringUtils.capitalize(nextResult.toString().toLowerCase());
                 items.add(text, nextResult.toString());
-                if (unstableAs.toString().equals(nextResult)) {
+                if (unstableAs.toString().equals(nextResult.toString())) {
                     items.get(items.size()-1).selected = true;
                 } 
             }
